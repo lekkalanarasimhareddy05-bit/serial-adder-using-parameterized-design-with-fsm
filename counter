@@ -1,0 +1,23 @@
+module counter #(parameter N=4)(
+    input clk,
+    input reset,
+    input enable,
+    output reg done
+);
+
+reg [N-1:0] count;
+
+always @(posedge clk or posedge reset)
+begin
+    if(reset)
+        count <= 0;
+    else if(enable)
+        count <= count + 1;
+end
+
+always @(*)
+begin
+    done = (count >= N-1);
+end
+
+endmodule
