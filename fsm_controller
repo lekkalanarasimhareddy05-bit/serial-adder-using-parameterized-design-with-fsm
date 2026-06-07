@@ -1,0 +1,68 @@
+module fsm_controller (
+    input clk,
+    input reset,
+    input start,
+    input count_done,
+
+    output reg load,
+    output reg shift,
+    output reg done
+);
+
+parameter IDLE = 2'b00;
+parameter LOAD = 2'b01;
+parameter ADD  = 2'b10;
+parameter DONE = 2'b11;
+
+reg [1:0] state, next_state;
+
+// State Register
+always @(posedge clk or posedge reset) begin
+    if (reset)
+        state <= IDLE;
+    else
+        state <= next_state;
+end
+
+// Next State Logic
+always @(*) begin
+
+    next_state = state;
+
+    if (state == IDLE) begin
+        if (start)
+            next_state = LOAD;
+    end
+
+    else if (state == LOAD) begin
+        next_state = ADD;
+    end
+
+    else if (state == ADD) begin
+        if (count_done)
+            next_state = DONE;
+    end
+
+    else if (state == DONE) begin
+        next_state = DONE;   // Hold result
+    end
+end
+
+// Output Logic
+always @(*) begin
+
+    load  = 0;
+    shift = 0;
+    done  = 0;
+
+    if (state == LOAD)
+        load = 1;
+
+    else if (state == ADD)
+        shift = 1;
+
+    else if (state == DONE)
+        done = 1;
+end
+
+endmodule
