@@ -1,0 +1,65 @@
+module serial_fsm_tb;
+
+parameter N = 4;
+
+reg clk;
+reg reset;
+reg start;
+reg [N-1:0] A;
+reg [N-1:0] B;
+
+wire [N-1:0] sum;
+wire carry_final;
+wire done;
+
+serial_fsm #(N) uut (
+    .clk(clk),
+    .reset(reset),
+    .start(start),
+    .A(A),
+    .B(B),
+    .sum(sum),
+    .carry_final(carry_final),
+    .done(done)
+);
+
+// Clock
+always #5 clk = ~clk;
+
+initial begin
+    clk   = 0;
+    reset = 1;
+    start = 0;
+
+    // 11 + 6 = 17
+    A = 4'b1011;
+    B = 4'b0110;
+
+    #20 reset = 0;
+
+    #10 start = 1;
+    #10 start = 0;
+
+    #200 $finish;
+end
+
+// Debug Monitor
+always @(posedge clk) begin
+    $display(
+    "T=%0t state=%b load=%b shift=%b count_done=%b regA=%b regB=%b sum_bit=%b carry_ff=%b sum=%b carry_final=%b done=%b",
+    $time,
+    uut.fsm.state,
+    uut.load,
+    uut.shift,
+    uut.count_done,
+    uut.regA,
+    uut.regB,
+    uut.sum_bit,
+    uut.carry_ff,
+    uut.sum,
+    uut.carry_final,
+    uut.done
+    );
+end
+
+endmodule
