@@ -1,0 +1,83 @@
+module serial_fsm #(parameter N = 4)(
+    input clk,
+    input reset,
+    input start,
+    input [N-1:0] A,
+    input [N-1:0] B,
+
+    output [N-1:0] sum,
+    output carry_final,
+    output done
+);
+
+wire load, shift, count_done;
+
+wire [N-1:0] regA, regB;
+
+wire sum_bit;
+wire carry_out;
+wire carry_ff;
+
+// ---------------- FSM ----------------
+fsm_controller  fsm (
+    .clk(clk),
+    .reset(reset),
+    .start(start),
+    .count_done(count_done),
+    .load(load),
+    .shift(shift),
+    .done(done)
+);
+
+// -------- SHIFT REGISTER A ----------
+shift_register #(N) sr_A (
+    .clk(clk),
+    .reset(reset),
+    .load(load),
+    .shift(shift),
+    .parallel_in(A),
+    .serial_in(sum_bit),   // accumulator style (your design)
+    .q(regA)
+);
+
+// -------- SHIFT REGISTER B ----------
+shift_register #(N) sr_B (
+    .clk(clk),
+    .reset(reset),
+    .load(load),
+    .shift(shift),
+    .parallel_in(B),
+    .serial_in(1'b0),
+    .q(regB)
+);
+
+// -------- FULL ADDER ----------------
+full_adder fa (
+    .a(regA[0]),
+    .b(regB[0]),
+    .cin(carry_ff),
+    .sum(sum_bit),
+    .cout(carry_out)
+);
+
+// -------- CARRY FLIP FLOP ----------
+d_ff carry_reg (
+    .clk(clk),
+    .reset(reset),
+    .d(carry_out),
+    .q(carry_ff)
+);
+
+// -------- COUNTER -------------------
+counter #(N) cnt (
+    .clk(clk),
+    .reset(reset),
+    .enable(shift),
+    .done(count_done)
+);
+
+// -------- OUTPUT --------------------
+assign sum = regA;
+assign carry_final = carry_ff;
+
+endmodule
