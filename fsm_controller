@@ -44,7 +44,7 @@ always @(*) begin
     end
 
     else if (state == DONE) begin
-        next_state = DONE;   // Hold result
+        next_state = IDLE;  // Hold result and retrun to idle state and start new operation 
     end
 end
 
