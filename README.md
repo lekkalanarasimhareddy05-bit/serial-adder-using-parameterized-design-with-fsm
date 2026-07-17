@@ -321,4 +321,4 @@ Y.S.R Engineering College of Yogi Vemana University
 
 **GitHub**
 
-https://github.com/lekkalanarasimhareddy05-bit
+[https://github.com/lekkalanarasimhareddy05-bit](https://github.com/lekkalanarasimhareddy05-bit/parameterized-serial-adder-fsm-verilog)
